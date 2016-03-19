@@ -1,10 +1,17 @@
 var chronoSeconds = 0;
-var isRunning = 0;
+var isRunning = false;
 var isStarted = 0;
+var firstStopCall = true;
 var chronoIntervalHandle;
 
-$(document).ready(initializeClock(1,1,1));
-$(window).unload(stopChrono(1,1));
+$(document).ready(function()
+{
+    setTimeout(function() {
+        // TODO: Replace stop chrono parameters by the organisation id and the project id
+        $(window).bind("beforeunload", stopChrono(1, 1))
+    } , 1000);
+});
+$(document).ready(initializeClock(1,1));
 
 function disableSection(id){
     $("#" + id + " :input").prop("disabled", true);
@@ -28,19 +35,18 @@ function convertSeconds(seconds) {
     };
 }
 
-function initializeClock(idClock, idProject, idOrg, number){
+function initializeClock(idProject, idOrg){
     var endpoint = "/organisations/" + idOrg + "/projects/" + idProject + "/timers?action=start";
-    var chronoSeconds = 0;
     $.ajax({
         type: "POST",
         url: endpoint,
         data: "",
         success: function(data) {
-            chronoSeconds = data.runningTimeInSeconds;
+            chronoSeconds = parseInt(data.runningTimeInHafedhMilis / 1000);
         },
         dataType: "json"}
     );
-    
+
     setChronoTime(chronoSeconds);
     startChrono();
 }
@@ -55,6 +61,8 @@ function setChronoTime(seconds) {
 }
 
 function startChrono() {
+    if (isRunning) return;
+    isRunning = true;
     chronoIntervalHandle = setInterval(updateChronoTime, 1000);
 }
 
@@ -63,9 +71,16 @@ function updateChronoTime() {
 }
 
 function stopChrono(idOrg, idProject) {
+    if (firstStopCall) {
+        firstStopCall = false;
+        return;
+    }
+    if (!isRunning) return;
+
     var endpoint = "/organisations/" + idOrg + "/projects/" + idProject + "/timers?action=stop";
 
     clearInterval(chronoIntervalHandle);
+    isRunning = false;
 
     $.ajax({
         type: "POST",
@@ -105,7 +120,8 @@ function increment(){
 function togglePlayPause() {
     if ($("#idBtnStart").is(':visible')) {
         // Starting timer
-        initializeClock(1, 1, 1);
+        // TODO: Replace start chrono parameters by the organisation id and the project id
+        initializeClock(1, 1);
         // TODO: Replace inputTest by the form id
         enableSection("inputTest");
         $("#idBtnStart").hide();
@@ -113,7 +129,8 @@ function togglePlayPause() {
         $("#clockCover").hide();
     } else {
         // Pausing timer
-        stopChrono();
+        // TODO: Replace stop chrono parameters by the organisation id and the project id
+        stopChrono(1, 1);
         // TODO: Replace inputTest by the form id
         disableSection("inputTest");
         $("#idBtnStart").show();
