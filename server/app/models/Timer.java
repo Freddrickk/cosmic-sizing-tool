@@ -51,7 +51,7 @@ public class Timer extends Model {
 
     }
 
-    @JsonProperty("runningTimeInHafedhMilis")
+    @JsonIgnore
     public Long runningTime() {
         Date referenceEndDate;
         if (this.endTime == null) {
@@ -62,6 +62,13 @@ public class Timer extends Model {
         }
 
         return referenceEndDate.getTime() - this.startTime.getTime();
+    }
+
+    @JsonProperty("runningTimeInHafedhMilis")
+    public Long allChronosRuntime() {
+
+        return sumTimers(getAllTimersForProject(this.organizationId, this.projectId));
+
     }
 
     @JsonIgnore
