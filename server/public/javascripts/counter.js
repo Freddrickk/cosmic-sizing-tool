@@ -3,8 +3,8 @@ var isRunning = 0;
 var isStarted = 0;
 var chronoIntervalHandle;
 
-$(document).ready(initializeClock);
-$(window).unload(stopChrono);
+$(document).ready(initializeClock(1,1,1));
+$(window).unload(stopChrono(1,1));
 
 function disableSection(id){
     $("#" + id + " :input").prop("disabled", true);
@@ -29,18 +29,18 @@ function convertSeconds(seconds) {
 }
 
 function initializeClock(idClock, idProject, idOrg, number){
-    var endpoint = "/organization/" + idOrg + "/project/" + idProject + "/timer";
+    var endpoint = "/organisations/" + idOrg + "/projects/" + idProject + "/timers?action=start";
     var chronoSeconds = 0;
-    //     $.ajax({
-    //         url: endpoint,
-    //         data: "",
-    //         success: function(data) {
-    //             chronoSeconds = data;
-    //         },
-    //         dataType: "json"}
-    //     );
-
-    chronoSeconds = 3668;
+    $.ajax({
+        type: "POST",
+        url: endpoint,
+        data: "",
+        success: function(data) {
+            chronoSeconds = data.runningTimeInSeconds;
+        },
+        dataType: "json"}
+    );
+    
     setChronoTime(chronoSeconds);
     startChrono();
 }
@@ -56,15 +56,24 @@ function setChronoTime(seconds) {
 
 function startChrono() {
     chronoIntervalHandle = setInterval(updateChronoTime, 1000);
-    console.log(chronoIntervalHandle);
 }
 
 function updateChronoTime() {
     setChronoTime(++chronoSeconds);
 }
 
-function stopChrono() {
+function stopChrono(idOrg, idProject) {
+    var endpoint = "/organisations/" + idOrg + "/projects/" + idProject + "/timers?action=stop";
+
     clearInterval(chronoIntervalHandle);
+
+    $.ajax({
+        type: "POST",
+        url: endpoint,
+        data: "",
+        success: function() {},
+        dataType: "json"}
+    );
 }
 
 function increment(){
@@ -96,7 +105,7 @@ function increment(){
 function togglePlayPause() {
     if ($("#idBtnStart").is(':visible')) {
         // Starting timer
-        initializeClock();
+        initializeClock(1, 1, 1);
         // TODO: Replace inputTest by the form id
         enableSection("inputTest");
         $("#idBtnStart").hide();
