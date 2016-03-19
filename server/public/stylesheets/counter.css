@@ -1,3 +1,4 @@
+/* TODO modify the position, top and right to fit to the page and targeted position */
 #clockdiv {
 	display: inline-block;
 	background-color: #60b044;
@@ -59,6 +60,7 @@
 	display: none;
 }
 
+/* TODO Modify the position and size for to fit the targeted page */
 #clockCover {
 	display: none;
 	background-color: #8add6d;
